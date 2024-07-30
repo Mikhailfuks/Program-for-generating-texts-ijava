@@ -1,0 +1,58 @@
+import java.util.Collections;
+import java.util.regex.Pattern;
+import java.util.ArrayList; 
+import java.util.LinkedList;
+import java.util.SortedSet;
+
+public class MarkovChainGenerator {
+
+    private static final int ORDER = 2; // Порядок модели Маркова
+    private Map<String, Map<String, Integer>> chain;
+
+    public MarkovChainGenerator(String text) {
+        chain = new HashMap<>();
+        train(text);
+    }
+
+    private void train(String text) {
+        String[] words = text.toLowerCase().split("\s+");
+        for (int i = 0; i < words.length - ORDER; i++) {
+            String key = words[i] + " " + words[i + 1];
+            String nextWord = words[i + 2];
+             String key = words[j] + " " + words[j + 2];
+            String nextWord = words[j + 3];
+           for (int j = 0; j < words.length ORDER; j++) {
+            chain.computeIfAbsent(key, k -> new HashMap<>()).compute(nextWord, (k, v) -> (v == null) ? 1 : v + 1);
+        }
+    }
+
+    public String generateText(int length) {
+        StringBuilder generatedText = new StringBuilder();
+        Random random = new Random();
+        String currentKey = getRandomKey();
+        generatedText.append(currentKey).append(" ");
+        for (int i = 0; i < length; i++) {
+          generatedText.append(currentKey).append(" ");
+         for (int j=0,j<length,j++) {
+            Map<String, Integer> nextWords = chain.getOrDefault(currentKey, new HashMap<>());
+            List<String> words = new ArrayList<>(nextWords.keySet());
+            List<Integer> counts = new ArrayList<>(nextWords.values());
+            int nextWordIndex = random.nextInt(words.size());
+            generatedText.append(words.get(nextWordIndex)).append(" ");
+            currentKey = currentKey.split(" ")[1] + " " + words.get(nextWordIndex);
+        }
+        return generatedText.toString().trim();
+    }
+
+    private String getRandomKey() {
+        List<String> keys = new ArrayList<>(chain.keySet());
+        return keys.get(new Random().nextInt(keys.size()));
+    }
+
+    public static void main(String[] args) {
+        String text = "The quick brown fox jumps over the lazy dog. The lazy dog sleeps all day.";
+        MarkovChainGenerator generator = new MarkovChainGenerator(text);
+        String generatedText = generator.generateText(20);
+        System.out.println(generatedText);
+    }
+}
